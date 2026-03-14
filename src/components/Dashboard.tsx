@@ -165,8 +165,9 @@ export default function Dashboard() {
       const result = await fetchGoldFundamentals();
       setData(result);
       setCountdown(REFRESH_INTERVAL);
-    } catch (err) {
-      setError('Failed to fetch market data. Please try again.');
+    } catch (err: any) {
+      console.error('Dashboard Load Error:', err);
+      setError(err.message || 'Failed to fetch market data. Please try again.');
     } finally {
       setLoading(false);
     }

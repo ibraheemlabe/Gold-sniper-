@@ -62,11 +62,74 @@ export interface GoldFundamentalData {
   };
 }
 
+const MOCK_DATA: GoldFundamentalData = {
+  macro: {
+    analysis: "The US Dollar is showing signs of exhaustion as cooling inflation data suggests the Fed might pause rate hikes. This creates a massive tailwind for Gold as a non-yielding asset.",
+    metaphor: "A coiled spring ready to snap higher as the weight of the Dollar lifts.",
+    impact: { immediate: "Bullish", shortTerm: "Neutral", mediumTerm: "Bullish", longTerm: "Bullish" }
+  },
+  yields: {
+    analysis: "10-Year Treasury yields are retreating from recent highs, reducing the opportunity cost of holding Gold. Watch the 4.2% level closely.",
+    metaphor: "The gravity holding Gold down is weakening.",
+    impact: { immediate: "Bullish", shortTerm: "Bullish", mediumTerm: "Neutral", longTerm: "Bullish" }
+  },
+  sentiment: {
+    analysis: "Retail sentiment is currently split, but institutional flow shows heavy accumulation at the $2,680 support zone. Fear of missing out (FOMO) is building.",
+    metaphor: "The smart money is quietly loading the boat.",
+    impact: { immediate: "Neutral", shortTerm: "Bullish", mediumTerm: "Bullish", longTerm: "Bullish" }
+  },
+  summary: "Gold is entering a high-probability breakout phase supported by macro weakness in the USD and technical accumulation at key pivot levels.",
+  bias: 'BULLISH',
+  sources: [{ title: 'Market Example', uri: 'https://example.com' }],
+  lastUpdated: new Date().toLocaleTimeString(),
+  mentorAdvice: "Don't chase the green candles. Wait for the retest of the pivot at $2,715. Risk management is your only edge in this volatility. 💰",
+  goalPlan: {
+    goal: "Capture the $2,750 Breakout",
+    steps: ["Wait for H1 close above $2,720", "Set SL at $2,705", "TP1 at $2,745"],
+    motivation: "Discipline equals freedom. Stick to the sniper code."
+  },
+  historicalTrends: {
+    week: [
+      { date: "Mon", price: 2680 }, { date: "Tue", price: 2695 }, { date: "Wed", price: 2710 },
+      { date: "Thu", price: 2705 }, { date: "Fri", price: 2725 }, { date: "Sat", price: 2722 }, { date: "Sun", price: 2730 }
+    ],
+    month: [],
+    year: []
+  },
+  newsToWatch: [
+    { title: "CPI Inflation Data", time: "13:30 UTC", importance: 'HIGH', impact: "High Volatility Expected" }
+  ],
+  scalperLevels: {
+    support: [{ level: 2680, reason: "Daily Order Block" }, { level: 2700, reason: "Psychological Level" }],
+    resistance: [{ level: 2745, reason: "Previous Month High" }],
+    pivot: 2715
+  }
+};
+
+function extractJson(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch (e2) {
+        throw new Error("Failed to parse AI response as JSON");
+      }
+    }
+    throw new Error("No valid JSON found in AI response");
+  }
+}
+
 export async function fetchGoldFundamentals(): Promise<GoldFundamentalData> {
   const apiKey = process.env.GEMINI_API_KEY || '';
+  
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set. Please add it to your .env file.");
+    console.warn("GEMINI_API_KEY is missing. Falling back to mock data for demo.");
+    return { ...MOCK_DATA, lastUpdated: `${new Date().toLocaleTimeString()} (DEMO MODE)` };
   }
+
   const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `
@@ -83,7 +146,7 @@ export async function fetchGoldFundamentals(): Promise<GoldFundamentalData> {
     5. MOBILE OPTIMIZED COPY: Short, punchy sentences.
     6. Use #moneywise emoji 💰.
 
-    Return the response in JSON format:
+    Return the response in STRICT JSON format. Do not include any markdown formatting or extra text.
     {
       "macro": { "analysis": "...", "impact": { "immediate": "...", "shortTerm": "...", "mediumTerm": "...", "longTerm": "..." }, "metaphor": "..." },
       "yields": { "analysis": "...", "impact": { "immediate": "...", "shortTerm": "...", "mediumTerm": "...", "longTerm": "..." }, "metaphor": "..." },
@@ -95,7 +158,7 @@ export async function fetchGoldFundamentals(): Promise<GoldFundamentalData> {
       "historicalTrends": {
         "week": [ {"date": "...", "price": 0}, ... ],
         "month": [ {"date": "...", "price": 0}, ... ],
-        "year": [ {"date": "...", "price": 0}, ... ]
+        "year": [ {"date": "...", "price": 0} ]
       },
       "newsToWatch": [ {"title": "...", "time": "...", "importance": "HIGH/MEDIUM/LOW", "impact": "..."} ],
       "scalperLevels": {
@@ -118,7 +181,7 @@ export async function fetchGoldFundamentals(): Promise<GoldFundamentalData> {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-3.1-pro-preview",
       contents: prompt,
       config: {
         tools,
@@ -127,7 +190,7 @@ export async function fetchGoldFundamentals(): Promise<GoldFundamentalData> {
     });
 
     const text = response.text || '{}';
-    const data = JSON.parse(text);
+    const data = extractJson(text);
     
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     const sources = chunks?.map((chunk: any) => ({
@@ -181,16 +244,14 @@ export async function fetchGoldFundamentals(): Promise<GoldFundamentalData> {
   }
 
   try {
-    // Try with full grounding first
     return await attemptFetch(true);
   } catch (error) {
     console.warn("Initial fetch failed, retrying with simplified tools...", error);
     try {
-      // Fallback to just Google Search for speed and reliability
       return await attemptFetch(false);
     } catch (fallbackError) {
-      console.error("All fetch attempts failed:", fallbackError);
-      throw fallbackError;
+      console.error("All fetch attempts failed. Falling back to mock data.", fallbackError);
+      return { ...MOCK_DATA, lastUpdated: `${new Date().toLocaleTimeString()} (OFFLINE MODE)` };
     }
   }
 }

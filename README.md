@@ -55,13 +55,31 @@ A high-performance, technical dashboard for XAUUSD (Gold) fundamental analysis a
 
 ## Deployment
 
-To build the project for production:
+### Deploy to Netlify
+
+1. **Push to GitHub**: Push your code to a GitHub repository.
+2. **Connect to Netlify**:
+   - Log in to [Netlify](https://www.netlify.com/).
+   - Click **Add new site** > **Import an existing project**.
+   - Select **GitHub** and choose your repository.
+3. **Configure Build Settings**:
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+   - (Note: These are already configured in `netlify.toml`).
+4. **Set Environment Variables**:
+   - In Netlify, go to **Site settings** > **Environment variables**.
+   - Add `GEMINI_API_KEY` with your actual API key.
+5. **Deploy**: Click **Deploy site**.
+
+### Manual Build
+
+To build the project for production locally:
 
 ```bash
 npm run build
 ```
 
-The output will be in the `dist/` directory, which can be hosted on any static site hosting service (Vercel, Netlify, GitHub Pages, etc.).
+The output will be in the `dist/` directory.
 
 ## License
 

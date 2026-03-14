@@ -24,13 +24,32 @@
           console.warn('Sniper Gold: Failed to adjust window.fetch descriptor', e);
         }
       })();
+    <script>
+      // Global error handler to catch script load failures or early runtime errors
+      window.onerror = function(message, source, lineno, colno, error) {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="color: #fb7185; padding: 40px; font-family: sans-serif; text-align: center; background: #050505; min-height: 100vh;">
+              <div style="font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.1em;">System Error</div>
+              <div style="font-size: 12px; opacity: 0.8; margin-bottom: 20px;">${message}</div>
+              <button onclick="window.location.reload()" style="background: rgba(251, 113, 133, 0.1); border: 1px solid rgba(251, 113, 133, 0.2); color: #fb7185; padding: 8px 16px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase;">Retry Boot</button>
+            </div>
+          `;
+        }
+        return false;
+      };
     </script>
   </head>
   <body>
     <div id="root">
-      <div style="color: #f59e0b; padding: 40px; font-family: sans-serif; text-align: center; font-weight: bold; background: #050505; min-height: 100vh;">
-        <div style="margin-bottom: 20px;">Initializing Sniper Gold...</div>
-        <div style="font-size: 12px; color: #71717a;">If this message persists, check your connection or API key.</div>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #050505; color: #f4f4f5; font-family: system-ui, -apple-system, sans-serif;">
+        <div style="width: 40px; height: 40px; border: 3px solid rgba(245, 158, 11, 0.1); border-top-color: #f59e0b; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #f59e0b;">Sniper Gold</div>
+        <div style="font-size: 9px; margin-top: 8px; color: #71717a; text-transform: uppercase; letter-spacing: 0.1em;">Initializing Dashboard...</div>
+        <style>
+          @keyframes spin { to { transform: rotate(360deg); } }
+        </style>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>

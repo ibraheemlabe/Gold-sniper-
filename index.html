@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sniper Gold Dashboard</title>
+    <script>
+      // Defensive fix for "Uncaught TypeError: Cannot set property fetch of #<Window> which has only a getter"
+      // This happens when a library tries to polyfill fetch on a window object where it's already defined as a getter.
+      (function() {
+        try {
+          const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+          if (descriptor && !descriptor.writable && descriptor.configurable) {
+            const originalFetch = window.fetch;
+            Object.defineProperty(window, 'fetch', {
+              value: originalFetch,
+              writable: true,
+              configurable: true,
+              enumerable: true
+            });
+            console.log('Sniper Gold: Successfully made window.fetch writable');
+          }
+        } catch (e) {
+          console.warn('Sniper Gold: Failed to adjust window.fetch descriptor', e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <div style="color: #f59e0b; padding: 40px; font-family: sans-serif; text-align: center; font-weight: bold; background: #050505; min-height: 100vh;">
+        <div style="margin-bottom: 20px;">Initializing Sniper Gold...</div>
+        <div style="font-size: 12px; color: #71717a;">If this message persists, check your connection or API key.</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
